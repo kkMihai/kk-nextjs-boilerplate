@@ -15,7 +15,8 @@ Yep another NextJS Boilerplate, Since my adventure to find the best boilerplate 
 - **Zod for runtime type checking**
 - **[NextAuth V4](https://next-auth.js.org/) for authentication using `credentials`**
    - Why V4? Even tho V5 exists its still in beta and is not supposed to be used in production, while other boilerplates use v5 which is a dumb idea, i decided to stick with v4
-- **Custom Auth Lib `(src/lib/auth/auth.js)` for handling authentication better because V4 doesn't provide a more beautiful to get user or session, i made a own auth lib which you can get the user, check if its a admin, etc**
+- **Custom Auth Lib `(src/lib/auth/auth.js)` for handling authentication better because V4 doesn't provide a more beautiful way to get user info or session, i made a own auth lib which you can get the user, check if its a admin, etc**
+- **2FA with [OTPAuth](https://www.npmjs.com/package/otpauth) with encrypted secret**
 - **Sessions Management, this lets your users manage their sessions, logout from all devices, etc**
 - **[React Query](https://tanstack.com/query/latest) for data fetching**
 - **Modules Aliases to manage paths easily without using `../../../blah.js` because if code not good then is bad**
