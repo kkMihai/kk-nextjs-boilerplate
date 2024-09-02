@@ -14,5 +14,4 @@ You can use the following website to generate your own keys:
 
 [8gwifi RSA Key Generator](https://8gwifi.org/rsafunctions.jsp)
 
-⚠️ Remember you never know when some can steal your keys over the internet.
-I recommend to use this method only for local development and you lazy to use openssl
+⚠️ Caution: Using an online method can expose your keys to potential theft over the internet. It's strongly recommended to use this method only for local development and to prefer OpenSSL for generating keys securely.
