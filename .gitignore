@@ -10,7 +10,8 @@
 /coverage
 
 # sensitive, ignore the files in the .keys directory not the directory itself
-./.keys/*.pem
+.keys/*
+
 
 # next.js
 /.next/
