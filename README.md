@@ -1,40 +1,85 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🚀 KK NextJS Boilerplate
 
-## Getting Started
+Yep another NextJS Boilerplate, Since my adventure to find the best boilerplate for my projects has failed, I decided to create my own. This boilerplate is designed to help me (or your idk) kickstart your Next.js projects with a modern development stack.
+## 📦 Features
 
-First, run the development server:
+- **[Next.JS 14+](https://nextjs.org) with Page Router (App-router sucks)**
+  - "yes but server compone.. 🤓" stfu
+- **Type annotations using JSDoc and JavaScript (TypeScript is overrated)**
+- **[Tailwind CSS](https://tailwindcss.com) for styling**
+- **[ShadCN UI](https://ui.shadcn.com/) because other UI libraries suck**
+- **Prisma for database management**
+- **[ESLint](https://eslint.org) and Prettier for code linting and formatting**
+- **Using [AirBnB ESLint config](https://www.npmjs.com/package/eslint-config-airbnb) for that extra spice and perfection**
+- **Type-safe environment variables with [T3 env](https://env.t3.gg/) `(@t3-oss/env-nextjs)`**
+- **Zod for runtime type checking**
+- **[NextAuth V4](https://next-auth.js.org/) for authentication using `credentials`**
+   - Why V4? Even tho V5 exists its still in beta and is not supposed to be used in production, while other boilerplates use v5 which is a dumb idea, i decided to stick with v4
+- **Custom Auth Lib `(src/lib/auth/auth.js)` for handling authentication better because V4 doesn't provide a more beautiful to get user or session, i made a own auth lib which you can get the user, check if its a admin, etc**
+- **Sessions Management, this lets your users manage their sessions, logout from all devices, etc**
+- **[React Query](https://tanstack.com/query/latest) for data fetching**
+- **Modules Aliases to manage paths easily without using `../../../blah.js` because if code not good then is bad**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ❌ Why not use typescript?
+- I m not the type of guy to write types and interfaces and all that stuff, i know typescript is better for type-checking but i prefer to use JSDoc and Zod for runtime type checking, i know its not the best but i prefer it this way its much easier and gets the job done
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📁 Why use Page Router?
+- because app-router its more complicated than it should be. "bu.. but server components" 🤓 stfu dude, cache sucks anyway
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+"If it's not broken, then why fix it?" — __Moses Hadas__
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## 🚀 Getting Started
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+1. **Clone the Repository**
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   ```bash
+   git clone https://github.com/kkmihai/kk-nextjs-boilerplate.git
+   cd kk-nextjs-boilerplate
+   ```
 
-## Learn More
+2. **Install Dependencies**
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Set Up Environment Variables**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+    - Copy `.env.example` to `.env.local` and update the values as needed.
 
-## Deploy on Vercel
+   ```bash
+   cp .env.example .env.local
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run the Development Server**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   Your application will be running at `http://127.0.0.1:3000`.
+   If you are in development use 127.0.0.1 not localhost because it can cause potential DNS resolution issues
+
+## 📖 Documentation
+
+- **[Next.js Documentation](https://nextjs.org/docs)**: Learn more about the core framework.
+- **[Tailwind CSS Documentation](https://tailwindcss.com/docs)**: Explore the utility-first CSS framework.
+- **[Prisma Documentation](https://www.prisma.io/docs)**: Dive into database management and ORM.
+- **[ESLint Documentation](https://eslint.org/docs)**: Understand the linting rules and configuration.
+- **[Prettier Documentation](https://prettier.io/docs/en/)**: Get details on code formatting.
+
+## ⚙️ Configuration
+
+- **Environment Variables**: Configure your environment settings in `.env.local` or also in `/src/env.mjs` depending if you wanna add env variables.
+
+## 💡 Contributing
+
+I welcome contributions! Please read the [contributing guide](CONTRIBUTING.md) for more details on how to get involved.
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 🙌 Support
+
+For any questions or issues, please open an [issue](https://github.com/kkmihai/kk-nextjs-boilerplate/issues)

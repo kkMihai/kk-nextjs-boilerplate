@@ -1,0 +1,88 @@
+// MongoDB-optimized Prisma schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  avatar           String?
+  username         String             @unique
+  email            String             @unique
+  emailVerified    DateTime?
+  twoFactorEnabled Boolean            @default(false)
+  twoFactorSecret  String?
+  password         String?
+  role             UserRole           @default(USER)
+  createdAt        DateTime           @default(now())
+  suspended        Boolean            @default(false)
+  accounts         Account[]
+  sessions         UserSession[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  ip         String
+  location   String
+  userAgent  String    @map("user_agent")
+  createdAt  DateTime  @default(now())
+  lastActive DateTime? @map("last_active")
+  userId     String    @db.ObjectId
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  username          String?
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model EmailVerificationToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String   @default("")
+  userId  String?  @db.ObjectId
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+  @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String   @default("")
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+  @@map("password_reset_tokens")
+}

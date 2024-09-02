@@ -9,9 +9,15 @@
 # testing
 /coverage
 
+# sensitive, ignore the files in the .keys directory not the directory itself
+./.keys/*
+
 # next.js
 /.next/
 /out/
+.next
+out
+.turbo
 
 # production
 /build
@@ -19,6 +25,8 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.log
 
 # debug
 npm-debug.log*
