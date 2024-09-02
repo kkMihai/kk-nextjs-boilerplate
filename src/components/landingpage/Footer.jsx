@@ -2,32 +2,10 @@ import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import Image from 'next/image';
 import { env } from '@/env.mjs';
+import config from '@/config.mjs';
 
 function Footer() {
-  const links = [
-    {
-      category: 'Nav',
-      links: [
-        {
-          title: 'Hero',
-          url: '#hero',
-        },
-      ],
-    },
-    {
-      category: 'Policies',
-      links: [
-        {
-          title: 'Terms',
-          url: '/policies/terms',
-        },
-        {
-          title: 'Privacy',
-          url: '/policies/privacy',
-        },
-      ],
-    },
-  ];
+  const { links } = config.footer;
 
   return (
     <footer className="mt-[16vh] w-full border-t">

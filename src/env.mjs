@@ -8,6 +8,7 @@ export const env = createEnv({
   */
   server: {
     NEXT_PUBLIC_APP_NAME: z.string(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
     DATABASE_URL: z.string().url(),
     NEXTAUTH_SECRET: z.string(),
     NEXTAUTH_URL: z.string().url(),
@@ -25,6 +26,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_APP_NAME: z.string(),
+    NEXT_PUBLIC_APP_URL: z.string().url(),
   },
   /*
    * Due to how Next.js bundles environment variables on Edge and Client,
@@ -34,6 +36,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXAUTH_URL,

@@ -22,15 +22,11 @@ import {
 } from '@/components/ui/dropdown-menu.jsx';
 import { Button } from '@/components/ui/button.jsx';
 import { env } from '@/env.mjs';
-
-const links = [
-  {
-    title: 'Github',
-    url: '/',
-  },
-];
+import config from '@/config.mjs';
 
 export default function Header({ session }) {
+  const { links } = config.header;
+
   const router = useRouter();
 
   const { setTheme } = useTheme();
