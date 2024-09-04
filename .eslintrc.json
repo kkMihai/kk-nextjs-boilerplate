@@ -1,67 +1,77 @@
 {
-  "parser": "@typescript-eslint/parser",
+  "parser": "@typescript-eslint/parser",  // Specifies ESLint parser to use with TypeScript
   "extends": [
-    "airbnb",
-    "airbnb/hooks",
-    "plugin:react/recommended",
-    "plugin:jsx-a11y/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:tailwindcss/recommended",
-    "next/core-web-vitals",
-    "prettier"
+    "airbnb",  // Base Airbnb style guide rules
+    "airbnb/hooks",  // Additional rules for React hooks from Airbnb
+    "plugin:react/recommended",  // Recommended React rules
+    "plugin:jsx-a11y/recommended",  // Accessibility rules for JSX
+    "plugin:@typescript-eslint/recommended",  // Recommended rules for TypeScript
+    "plugin:import/errors",  // Import plugin to check for errors in import/export syntax
+    "plugin:import/warnings",  // Import plugin to check for warnings in import/export syntax
+    "plugin:tailwindcss/recommended",  // Recommended rules for Tailwind CSS
+    "next/core-web-vitals",  // Core Web Vitals rules from Next.js
+    "prettier"  // Prettier integration to enforce code formatting
   ],
-  "plugins": ["@typescript-eslint","react", "jsx-a11y", "import", "tailwindcss"],
+  "plugins": [
+    "@typescript-eslint", // Enables TypeScript-specific linting rules
+    "react", // Enables React-specific linting rules
+    "jsx-a11y", // Enables accessibility linting for JSX
+    "import", // Enables linting for ES6+ import/export syntax
+    "tailwindcss" // Enables linting for Tailwind CSS class usage
+  ],
   "env": {
-    "browser": true,
-    "es2021": true,
-    "node": true
+    "browser": true,  // Specifies browser global variables like `window`
+    "es2021": true,  // Enables ES2021 global variables and syntax
+    "node": true  // Specifies Node.js global variables like `process`
   },
   "parserOptions": {
-    "ecmaVersion": 2021,
-    "sourceType": "module",
+    "ecmaVersion": 2021,  // Specifies the ECMAScript version to lint
+    "sourceType": "module",  // Enables ES6 module syntax
     "ecmaFeatures": {
-      "jsx": true
+      "jsx": true  // Enables linting of JSX syntax
     }
   },
   "rules": {
-    "react/react-in-jsx-scope": "off",
-    "react/no-array-index-key": "off",
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".mjs"] }],
-    "react/prop-types": "off",
-    "react/jsx-props-no-spreading": "off",
-    "import/prefer-default-export": "off",
+    "react/react-in-jsx-scope": "off",  // Disables the requirement to import React in JSX files (not needed in Next.js)
+    "react/no-array-index-key": "off",  // Disables the warning for using array index as key in React lists
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".mjs"] }],  // Restricts JSX to specific file extensions
+    "react/prop-types": "off",  // Disables prop-types requirement (useful in TypeScript projects)
+    "react/jsx-props-no-spreading": "off",  // Allows prop spreading in JSX
+    "import/prefer-default-export": "off",  // Disables the rule that prefers default exports over named exports
     "import/extensions": [
       "error",
       "ignorePackages",
       {
-        "js": "sometimes",
-        "jsx": "sometimes",
-        "mjs": "always"
+        "js": "sometimes",  // Enforces extensions on .js files when not in packages
+        "jsx": "sometimes",  // Enforces extensions on .jsx files when not in packages
+        "mjs": "always"  // Always enforce extensions on .mjs files
       }
     ],
-    "import/no-unresolved": [2, { "ignore": ["^@"] }],
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
-    "tailwindcss/classnames-order": "warn",
-    "tailwindcss/no-custom-classname": "warn",
-    "no-var": "error",
+    "import/no-unresolved": [2, { "ignore": ["^@"] }],  // Ignores unresolved imports that start with "@", often used in aliases
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],  // Allows dev dependencies to be imported in all files
+    "tailwindcss/classnames-order": "warn",  // Warns when Tailwind CSS classes are not in the recommended order
+    "tailwindcss/no-custom-classname": "warn",  // Warns when custom class names are used with Tailwind CSS classes
+    "no-var": "error",  // Disallows usage of `var` (use `let` or `const` instead)
     "prefer-const": ["warn", {
-      "destructuring": "all",
-      "ignoreReadBeforeAssign": false
+      "destructuring": "all",  // Prefers `const` in all destructuring cases
+      "ignoreReadBeforeAssign": false  // Warns even if variables are not read before reassignment
     }],
-    "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": false }],
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
+    "no-use-before-define": ["error", {
+      "functions": false,  // Allows using functions before they are defined
+      "classes": false,  // Allows using classes before they are defined
+      "variables": false  // Allows using variables before they are defined
+    }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],  // Ignores unused variables that start with `_` (useful for ignored arguments)
+    "no-console": ["warn", { "allow": ["warn", "error"] }]  // Warns on `console.log` but allows `console.warn` and `console.error`
   },
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".mjs"]
+        "extensions": [".js", ".jsx", ".mjs"]  // Specifies the file extensions that the import resolver should handle
       }
     },
     "react": {
-      "version": "detect"
+      "version": "detect"  // Automatically detects the React version used by the project
     }
   }
 }

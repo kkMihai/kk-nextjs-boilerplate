@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import GitHubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcryptjs from 'bcryptjs';
 import geoip from 'geoip-lite';
@@ -12,6 +13,10 @@ import { env } from '@/env.mjs';
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
+    GitHubProvider({
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+    }),
     Credentials({
       /**
        * Authorizes a user based on their credentials.

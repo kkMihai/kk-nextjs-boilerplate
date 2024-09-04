@@ -12,7 +12,6 @@
 # sensitive, ignore the files in the .keys directory not the directory itself
 .keys/*.pem
 
-
 # next.js
 /.next/
 /out/

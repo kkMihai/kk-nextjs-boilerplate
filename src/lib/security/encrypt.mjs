@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { env } from '@env';
+import { env } from '@/env.mjs';
 
 const baseKey = env.ENCRYPTION_SECRET_KEY;
 const salt = env.ENCRYPTION_SALT;

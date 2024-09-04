@@ -19,9 +19,9 @@ const createRedirectResponse = (destination) => ({
 const Auth = async (context) => {
   const { req, res } = context;
   const session = await getServerSession(req, res, authOptions);
-  const { user } = session;
+  const user = session?.user;
   const isAuthenticated = !!session;
-  const isAdmin = user.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN';
 
   const isApiRoute = req.url?.startsWith('/api/') || !!res.socket;
 
@@ -62,6 +62,13 @@ const Auth = async (context) => {
     authOptions.pages.notAdmin
   );
 
+  const providers = authOptions.providers
+    .map((provider) => ({
+      id: provider.id,
+      name: provider.name,
+    }))
+    .filter((provider) => provider.id !== 'credentials');
+
   return {
     session,
     user,
@@ -69,6 +76,7 @@ const Auth = async (context) => {
     isAuthenticated,
     requireAuth,
     requireAdmin,
+    providers,
   };
 };
 
