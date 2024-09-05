@@ -1,27 +1,27 @@
-import { getUserByEmail } from "@/data/user";
-import { generatePasswordResetToken } from "@/lib/tokens";
-import { sendPasswordResetEmail } from "@/lib/email.mjs";
-import { getPasswordResetTokenByEmail } from "@/data/passwordResetToken";
-import { z } from "@/schemas";
-import { validateTOTP } from "@/lib/2fa";
+import { getUser } from '@/data/user.js';
+import { generatePasswordResetToken } from '@/lib/tokens';
+import { sendPasswordResetEmail } from '@/lib/email.mjs';
+import { getPasswordResetToken } from '@/data/passwordResetToken.js';
+import { z } from '@/schemas/auth.js';
+import { validateTOTP } from '@/lib/auth/2fa.js';
 
 export default async function handler(req, res) {
   const { email, captchaToken, OTPCode } = req.body;
 
-  if (req.method !== "POST")
-    return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== 'POST')
+    return res.status(405).json({ message: 'Method not allowed' });
 
   if (!captchaToken) {
     return res.status(400).json({
-      message: "No captcha token provided",
-      type: "error",
+      message: 'No captcha token provided',
+      type: 'error',
     });
   }
 
   if (!email) {
     return res.status(400).json({
-      message: "No email provided",
-      type: "error",
+      message: 'No email provided',
+      type: 'error',
     });
   }
 
@@ -29,29 +29,29 @@ export default async function handler(req, res) {
     const verifyCaptchaResponse = await fetch(
       `${process.env.BASE_URL}/api/verify-captcha`,
       {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({ token: captchaToken }),
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      },
+      }
     );
 
     const verifyCaptchaData = await verifyCaptchaResponse.json();
 
-    if (verifyCaptchaData.type === "error") {
+    if (verifyCaptchaData.type === 'error') {
       return res.status(400).json({
-        message: "Captcha verification failed",
-        type: "error",
+        message: 'Captcha verification failed',
+        type: 'error',
       });
     }
 
-    const existingUser = await getUserByEmail(email);
+    const existingUser = await getUser(email);
 
     if (!existingUser) {
       return res.status(400).json({
-        message: "Cannot find this email in our records",
-        type: "error",
+        message: 'Cannot find this email in our records',
+        type: 'error',
       });
     }
 
@@ -59,21 +59,22 @@ export default async function handler(req, res) {
 
     if (has2FA && !OTPCode) {
       return res.status(400).json({
-        message: "2FA required",
-        type: "error",
+        message: '2FA required',
+        type: 'error',
       });
-    } else if (has2FA && OTPCode) {
+    }
+    if (has2FA && OTPCode) {
       const isValidOTP = validateTOTP(existingUser.twoFactorSecret, OTPCode);
 
       if (!isValidOTP) {
         return res.status(400).json({
-          message: "Two-Factor Authentication Code is invalid",
-          type: "error",
+          message: 'Two-Factor Authentication Code is invalid',
+          type: 'error',
         });
       }
     }
 
-    const existingToken = await getPasswordResetTokenByEmail(email);
+    const existingToken = await getPasswordResetToken(email);
 
     if (existingToken && new Date(existingToken.expires) > new Date()) {
       const timeLeft = Math.abs(new Date(existingToken.expires) - new Date());
@@ -82,7 +83,7 @@ export default async function handler(req, res) {
 
       return res.status(400).json({
         message: `You have already requested a password reset email. Please wait ${timeLeftInMinutes} minutes, ${timeLeftInSec} seconds before trying again.`,
-        type: "error",
+        type: 'error',
       });
     }
 
@@ -90,29 +91,29 @@ export default async function handler(req, res) {
 
     if (!generateToken) {
       return res.status(400).json({
-        message: "Failed to generate password reset token",
-        type: "error",
+        message: 'Failed to generate password reset token',
+        type: 'error',
       });
     }
 
     await sendPasswordResetEmail(
       email,
       generateToken.token,
-      existingUser.username,
+      existingUser.username
     );
 
     return res.status(200).json({
-      message: "An Password reset email has been sent to your email",
-      type: "success",
+      message: 'An Password reset email has been sent to your email',
+      type: 'success',
     });
   } catch (error) {
-    console.error("Error in reset-password.js: ", error);
+    console.error('Error in reset-password.js: ', error);
     return res.status(500).json({
       message:
         error instanceof z.ZodError
           ? error.errors[0].message
-          : "Internal server error",
-      type: "error",
+          : 'Internal server error',
+      type: 'error',
     });
   }
 }

@@ -1,17 +1,19 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcryptjs from 'bcryptjs';
 import geoip from 'geoip-lite';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/db/prisma.mjs';
 import { validateTOTP } from '@/lib/auth/2fa.js';
 import { getUser } from '@/data/user.js';
 import { getEmailVerificationToken } from '@/data/emailVerificationToken.js';
 import { env } from '@/env.mjs';
+import { SignInSchema, z } from '@/schemas/auth.js';
+
+const { linkAccount } = PrismaAdapter(prisma);
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,
@@ -26,35 +28,38 @@ export const authOptions = {
        * @returns {Promise<import('@/schemas/auth.js').SignInSchema>} - The user's credentials.
        */
       async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error(`credentials_missing`);
-        }
+        const { email, password, twoFactorToken } =
+          await SignInSchema.parseAsync(credentials).catch((error) => {
+            throw new Error(
+              error instanceof z.ZodError
+                ? error.errors[0].message
+                : 'Internal server error'
+            );
+          });
 
-        const user = await getUser(credentials.email);
+        const user = await getUser(email);
 
         if (!user) {
-          throw new Error('user_not_found');
+          throw new Error('User not found');
         }
 
         const isPasswordValid = await bcryptjs.compare(
-          atob(credentials.password),
+          atob(password),
           user.password
         );
         if (!isPasswordValid) {
-          throw new Error('password_invalid');
+          throw new Error('Your password is incorrect');
         }
 
         if (user.suspended) {
-          throw new Error('account_suspended');
+          throw new Error('This account has been suspended');
         }
 
         if (!user.emailVerified) {
           throw new Error('email_unverified');
         }
 
-        const existingToken = await getEmailVerificationToken(
-          credentials.email
-        );
+        const existingToken = await getEmailVerificationToken(email);
 
         if (
           existingToken &&
@@ -71,15 +76,12 @@ export const authOptions = {
           );
         }
 
-        if (user.twoFactorEnabled && !credentials.twoFactorToken) {
+        if (user.twoFactorEnabled && !twoFactorToken) {
           throw new Error('2fa_required');
         }
 
-        if (user.twoFactorEnabled && credentials.twoFactorToken) {
-          const isValid = validateTOTP(
-            user.twoFactorSecret,
-            credentials.twoFactorToken
-          );
+        if (user.twoFactorEnabled && twoFactorToken) {
+          const isValid = validateTOTP(user.twoFactorSecret, twoFactorToken);
 
           if (!isValid) {
             throw new Error('2fa_invalid');
@@ -95,10 +97,64 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account.provider !== 'credentials') return true;
-      const existingUser = await getUser(user.id);
-      return !!existingUser.emailVerified;
+    async signIn({ user, account, profile }) {
+      try {
+        if (account.provider === 'credentials') {
+          const existingUser = await getUser(user.email);
+          return !!existingUser?.emailVerified;
+        }
+
+        const existingAccount = await prisma.account.findFirst({
+          where: {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+          },
+        });
+
+        if (existingAccount) {
+          const existingUser = await getUser(existingAccount.userId);
+          return !!existingUser?.emailVerified;
+        }
+
+        const existingUser = await getUser(user.email);
+
+        if (existingUser) {
+          await linkAccount({
+            username: profile.name,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            access_token: account.access_token,
+            refresh_token: account.refresh_token,
+            userId: existingUser.id,
+            type: 'oauth',
+          });
+          return !!existingUser.emailVerified;
+        }
+
+        const newUser = await prisma.user.create({
+          data: {
+            email: profile.email,
+            username: profile.name,
+            avatar: profile.image ?? null,
+            emailVerified: new Date(),
+          },
+        });
+
+        await linkAccount({
+          username: profile.name,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          access_token: account.access_token,
+          refresh_token: account.refresh_token,
+          userId: newUser.id,
+          type: 'oauth',
+        });
+
+        return true;
+      } catch (error) {
+        console.error('Error signing in:', error);
+        throw new Error('An error occurred while signing in');
+      }
     },
     async jwt({ token, user }) {
       if (user) {
@@ -125,7 +181,7 @@ export const authOptions = {
       const existingSession = await prisma.userSession.findFirst({
         where: {
           userId: token.id,
-          ip: token.ip,
+          ip: token.ip || 'Unknown',
           userAgent: token.userAgent,
         },
       });
@@ -214,6 +270,7 @@ export const authOptions = {
     notAdmin: '/404',
   },
   secret: env.NEXTAUTH_SECRET,
+  url: env.NEXTAUTH_URL,
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days

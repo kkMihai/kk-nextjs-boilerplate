@@ -68,7 +68,7 @@ export default function SignIn({ providers }) {
 
     // eslint-disable-next-line consistent-return
     await signIn('credentials', { ...options }).then((res) => {
-      if (res?.error === 'EmailSent') {
+      if (res?.error === 'email_unverified') {
         setLoading(false);
         return loading.update({
           title: 'Verification',
@@ -76,20 +76,22 @@ export default function SignIn({ providers }) {
           variant: 'success',
         });
       }
-      if (res?.error?.includes('CheckEmail')) {
+      if (res?.error?.includes('email_verification_required')) {
         setLoading(false);
-        const time = res.error.split('|')[1];
+        const minutes = `${res.error.split(':')[1]} minutes`;
+        const seconds = `${res.error.split(':')[2]} seconds`;
 
         return loading.update({
           title: 'Verification',
-          description: time
-            ? `Check your email for an verification link. If you didn't receive the email, you can request a new one in ${time}`
-            : 'Check your email for an verification link.',
+          description:
+            minutes && seconds
+              ? `Check your email for an verification link. If you didn't receive the email, you can request a new one in ${minutes} and ${seconds}`
+              : 'Check your email for an verification link.',
           variant: 'success',
         });
       }
-      if (res?.error?.includes('2FA')) {
-        if (res.error.includes('Code')) {
+      if (res?.error?.includes('2fa_required')) {
+        if (res.error.includes('2fa_invalid')) {
           setLoading(false);
           return loading.update({
             description: 'The 2FA Code provided is invalid',
@@ -129,9 +131,40 @@ export default function SignIn({ providers }) {
           <CardTitle>Sign In</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
+
+        <CardContent className="pb-0">
+          {providers && Object.values(providers).length > 0 && (
+            <div className="space-y-2">
+              <div className="flex space-x-2">
+                {Object.values(providers).map((provider) => (
+                  <Button
+                    key={provider.name}
+                    onClick={() =>
+                      signIn(provider.id, {
+                        callbackUrl: '/dashboard',
+                      })
+                    }
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Sign in with {provider.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+        {Object.values(providers).length > 0 && (
+          <CardContent className="flex items-center justify-center py-3">
+            <div className="w-full border-t border-secondary" />
+            <div className="px-3 text-muted-foreground">OR</div>
+            <div className="w-full border-t border-secondary" />
+          </CardContent>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSignIn)}>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 pt-0">
               <FormField
                 control={form.control}
                 name="email"

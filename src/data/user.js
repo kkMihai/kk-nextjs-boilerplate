@@ -11,7 +11,7 @@ export async function getUser(param) {
     throw new Error('You must provide an email or id.');
   }
 
-  const result = await prisma.user.findUnique({
+  const result = await prisma.user.findFirst({
     where: {
       OR: [
         {
