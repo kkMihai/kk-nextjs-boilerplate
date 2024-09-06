@@ -157,7 +157,7 @@ export default function SignIn({ providers }) {
         {Object.values(providers).length > 0 && (
           <CardContent className="flex items-center justify-center py-3">
             <div className="w-full border-t border-secondary" />
-            <div className="px-3 text-muted-foreground">OR</div>
+            <div className="px-3 text-sm text-muted-foreground">OR</div>
             <div className="w-full border-t border-secondary" />
           </CardContent>
         )}
@@ -214,18 +214,30 @@ export default function SignIn({ providers }) {
                 </Link>
               </Button>
             </CardContent>
-            <CardFooter className="flex flex-col">
+            <CardFooter className="flex flex-col gap-2">
               <Button className="w-full" disabled={loading} type="submit">
                 Sign In
               </Button>
               <Button
                 variant="secondary"
-                className="mt-4 w-full"
-                onClick={() => router.push('/auth/signup')}
+                className="w-full"
+                onClick={() => router.push('/')}
                 type="button"
               >
-                Sign Up
+                Go back to Home
               </Button>
+
+              <div className="mt-4 flex items-center justify-center">
+                <span className="text-sm text-gray-500">
+                  {`Don't`} have an account?{' '}
+                  <Link
+                    href="/auth/signup"
+                    className="text-sm text-blue-500 hover:underline"
+                  >
+                    Sign Up
+                  </Link>
+                </span>
+              </div>
             </CardFooter>
           </form>
         </Form>

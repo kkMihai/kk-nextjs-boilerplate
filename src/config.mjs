@@ -50,10 +50,10 @@ const config = {
   // Configuration for the header links
   header: {
     links: [
-      {
-        title: 'Github',
-        url: '/', // URL for the GitHub link in the header
-      },
+      // {
+      //   title: 'Home',
+      //   url: '/', // URL for the GitHub link in the header
+      // },
     ],
   },
   // Configuration for the footer links

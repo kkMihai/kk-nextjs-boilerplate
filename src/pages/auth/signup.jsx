@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRef, useState } from 'react';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { signIn } from 'next-auth/react';
 import Auth from '@/Auth.js';
 import {
   Card,
@@ -27,7 +28,7 @@ import { ToastAction } from '@/components/ui/toast.jsx';
 import { SignUpSchema } from '@/schemas/auth.js';
 import { env } from '@/env.mjs';
 
-export default function SignUp() {
+export default function SignUp({ providers }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const captchaRef = useRef(null);
@@ -105,6 +106,36 @@ export default function SignUp() {
             Sign up to start using {env.NEXT_PUBLIC_APP_NAME}
           </CardDescription>
         </CardHeader>
+
+        <CardContent className="pb-0">
+          {providers && Object.values(providers).length > 0 && (
+            <div className="space-y-2">
+              <div className="flex space-x-2">
+                {Object.values(providers).map((provider) => (
+                  <Button
+                    key={provider.name}
+                    onClick={() =>
+                      signIn(provider.id, {
+                        callbackUrl: '/dashboard',
+                      })
+                    }
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Sign Up with {provider.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+        {Object.values(providers).length > 0 && (
+          <CardContent className="flex items-center justify-center py-3">
+            <div className="w-full border-t border-secondary" />
+            <div className="px-3 text-sm text-muted-foreground">OR</div>
+            <div className="w-full border-t border-secondary" />
+          </CardContent>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSignUp)}>
             <CardContent className="space-y-3">
@@ -199,9 +230,17 @@ export default function SignUp() {
                 </span>
               </div>
             </CardContent>
-            <CardFooter className="mt-3 flex flex-col">
+            <CardFooter className="flex flex-col gap-2">
               <Button type="submit" className="w-full" disabled={loading}>
                 Sign Up
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={() => router.push('/')}
+                type="button"
+              >
+                Go back to Home
               </Button>
 
               <div className="mt-4 flex items-center justify-center">
@@ -224,7 +263,7 @@ export default function SignUp() {
 }
 
 export async function getServerSideProps(context) {
-  const { session } = await Auth(context);
+  const { session, providers } = await Auth(context);
 
   if (session) {
     return {
@@ -236,6 +275,8 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: {},
+    props: {
+      providers,
+    },
   };
 }

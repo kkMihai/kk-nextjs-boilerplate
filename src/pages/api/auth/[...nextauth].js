@@ -7,9 +7,8 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/db/prisma.mjs';
 import { validateTOTP } from '@/lib/auth/2fa.js';
 import { getUser } from '@/data/user.js';
-import { getEmailVerificationToken } from '@/data/emailVerificationToken.js';
 import { env } from '@/env.mjs';
-import { SignInSchema, z } from '@/schemas/auth.js';
+import { SignInSchema } from '@/schemas/auth.js';
 
 const { linkAccount } = PrismaAdapter(prisma);
 
@@ -20,28 +19,11 @@ export const authOptions = {
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
     Credentials({
-      /**
-       * Authorizes a user based on their credentials.
-       *
-       * @param {SignInSchema} credentials - The credentials used for sign-in.
-       * @param {Object} req - The HTTP request object.
-       * @returns {Promise<import('@/schemas/auth.js').SignInSchema>} - The user's credentials.
-       */
       async authorize(credentials, req) {
         const { email, password, twoFactorToken } =
-          await SignInSchema.parseAsync(credentials).catch((error) => {
-            throw new Error(
-              error instanceof z.ZodError
-                ? error.errors[0].message
-                : 'Internal server error'
-            );
-          });
+          SignInSchema.parse(credentials);
 
         const user = await getUser(email);
-
-        if (!user) {
-          throw new Error('User not found');
-        }
 
         const isPasswordValid = await bcryptjs.compare(
           atob(password),
@@ -59,23 +41,6 @@ export const authOptions = {
           throw new Error('email_unverified');
         }
 
-        const existingToken = await getEmailVerificationToken(email);
-
-        if (
-          existingToken &&
-          new Date(existingToken.expires) > new Date() &&
-          !user.emailVerified
-        ) {
-          const timeLeft = Math.abs(
-            new Date(existingToken.expires) - new Date()
-          );
-          const timeLeftInMinutes = Math.floor(timeLeft / 60000);
-          const timeLeftInSeconds = Math.floor((timeLeft % 60000) / 1000);
-          throw new Error(
-            `email_verification_required:${timeLeftInMinutes}:${timeLeftInSeconds}`
-          );
-        }
-
         if (user.twoFactorEnabled && !twoFactorToken) {
           throw new Error('2fa_required');
         }
@@ -88,11 +53,11 @@ export const authOptions = {
           }
         }
 
-        return {
+        return Promise.resolve({
           id: user.id,
           ip: req.headers['x-forwarded-for'] || 'Unknown',
           userAgent: req.headers['user-agent'] || 'Unknown',
-        };
+        });
       },
     }),
   ],
@@ -100,7 +65,7 @@ export const authOptions = {
     async signIn({ user, account, profile }) {
       try {
         if (account.provider === 'credentials') {
-          const existingUser = await getUser(user.email);
+          const existingUser = await getUser(user.id);
           return !!existingUser?.emailVerified;
         }
 
@@ -170,6 +135,7 @@ export const authOptions = {
     },
     async session({ session, token }) {
       const user = await getUser(token.id);
+
       if (!user.emailVerified) {
         throw new Error('Email not verified');
       }
@@ -270,7 +236,6 @@ export const authOptions = {
     notAdmin: '/404',
   },
   secret: env.NEXTAUTH_SECRET,
-  url: env.NEXTAUTH_URL,
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days

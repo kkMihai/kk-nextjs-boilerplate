@@ -8,6 +8,7 @@
     "plugin:@typescript-eslint/recommended",  // Recommended rules for TypeScript
     "plugin:import/errors",  // Import plugin to check for errors in import/export syntax
     "plugin:import/warnings",  // Import plugin to check for warnings in import/export syntax
+    "plugin:import/recommended", // Enables import/export syntax linting
     "plugin:tailwindcss/recommended",  // Recommended rules for Tailwind CSS
     "next/core-web-vitals",  // Core Web Vitals rules from Next.js
     "prettier"  // Prettier integration to enforce code formatting

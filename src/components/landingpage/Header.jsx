@@ -78,7 +78,7 @@ export default function Header({ session }) {
         </nav>
       </div>
 
-      <div className="flex gap-x-4">
+      <div className="flex items-center gap-x-4">
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,7 +111,7 @@ export default function Header({ session }) {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <MotionAvatar
-                className="size-12"
+                className=""
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.3 }}
