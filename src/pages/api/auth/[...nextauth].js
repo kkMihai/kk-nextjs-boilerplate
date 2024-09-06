@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import bcryptjs from 'bcryptjs';
-import geoip from 'geoip-lite';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import prisma from '@/lib/db/prisma.mjs';
 import { validateTOTP } from '@/lib/auth/2fa.js';
@@ -126,8 +125,6 @@ export const authOptions = {
         return {
           ...token,
           id: user.id,
-          ip: user.ip,
-          userAgent: user.userAgent,
           isSessionValid: true,
         };
       }
@@ -144,33 +141,6 @@ export const authOptions = {
         throw new Error('This account has been suspended');
       }
 
-      const existingSession = await prisma.userSession.findFirst({
-        where: {
-          userId: token.id,
-          ip: token.ip || 'Unknown',
-          userAgent: token.userAgent,
-        },
-      });
-
-      if (!existingSession) {
-        return null;
-      }
-
-      const isLastActiveMore =
-        new Date(existingSession.lastActive) <
-        new Date(new Date().getTime() - 3 * 60000);
-
-      if (existingSession && token.isSessionValid && isLastActiveMore) {
-        await prisma.userSession.update({
-          where: {
-            id: existingSession.id,
-          },
-          data: {
-            lastActive: new Date(),
-          },
-        });
-      }
-
       delete user.password;
       delete user.twoFactorSecret;
 
@@ -178,57 +148,6 @@ export const authOptions = {
         ...session,
         user,
       };
-    },
-  },
-  events: {
-    async signIn({ user }) {
-      const { ip, userAgent, id } = user;
-
-      const existingSession = await prisma.userSession.findFirst({
-        where: {
-          userId: id,
-          ip,
-          userAgent,
-        },
-      });
-
-      if (!existingSession) {
-        const GetGeoIP = geoip.lookup(ip);
-        let location;
-        if (GetGeoIP === null) {
-          location = 'Unknown';
-        } else {
-          location = `${GetGeoIP.city}, ${GetGeoIP.region}, ${GetGeoIP.country}`;
-        }
-
-        await prisma.userSession.create({
-          data: {
-            userId: id,
-            ip,
-            userAgent,
-            location,
-          },
-        });
-      }
-    },
-    async signOut({ token }) {
-      const { ip, userAgent, id } = token;
-
-      const existingSession = await prisma.userSession.findFirst({
-        where: {
-          userId: id,
-          ip,
-          userAgent,
-        },
-      });
-
-      if (existingSession) {
-        await prisma.userSession.delete({
-          where: {
-            id: existingSession.id,
-          },
-        });
-      }
     },
   },
   pages: {

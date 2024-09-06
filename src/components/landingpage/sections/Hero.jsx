@@ -49,9 +49,9 @@ export default function Hero() {
               boilerplate just to build your website in a week and fail. Great
               things take great time.
             </motion.p>
-            <div className="flex flex-row items-center gap-3">
+            <div className="flex flex-col items-center gap-1 md:flex-row lg:gap-3">
               <MotionButton
-                className="mt-4 gap-2 md:w-fit"
+                className="mt-4 w-full gap-2 md:w-fit"
                 size="lg"
                 onClick={() =>
                   router.push(
@@ -66,7 +66,7 @@ export default function Hero() {
                 Start Shipping
               </MotionButton>
               <MotionButton
-                className="mt-4 gap-2 md:w-fit"
+                className="mt-4 w-full gap-2 md:w-fit"
                 size="lg"
                 variant="outline"
                 onClick={() =>

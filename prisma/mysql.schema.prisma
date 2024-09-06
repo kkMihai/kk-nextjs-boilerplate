@@ -27,22 +27,8 @@ model User {
   createdAt        DateTime           @default(now())
   suspended        Boolean            @default(false)
   accounts         Account[]
-  sessions         UserSession[]
 
   @@map("users")
-}
-
-model UserSession {
-  id         String    @id @default(cuid())
-  ip         String
-  location   String
-  userAgent  String    @map("user_agent") @db.LongText
-  createdAt  DateTime  @default(now())
-  lastActive DateTime? @map("last_active")
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
 }
 
 model Account {

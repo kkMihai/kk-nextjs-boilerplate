@@ -125,7 +125,7 @@ export default function Header({ session }) {
                 </AvatarFallback>
               </MotionAvatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="min-w-44">
               <DropdownMenuLabel className="flex flex-col">
                 <span className="font-bold">{session.user.username}</span>
                 <span className="text-muted-foreground">
