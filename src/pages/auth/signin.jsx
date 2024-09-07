@@ -26,7 +26,7 @@ import { SignInSchema } from '@/schemas/auth.js';
 import TwoFactorDialog from '@/components/ui/twofadialog.jsx';
 import { Input } from '@/components/ui/input.jsx';
 
-export default function SignIn({ providers }) {
+export default function SignIn({ providers, userInfo }) {
   const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -141,7 +141,9 @@ export default function SignIn({ providers }) {
                     key={provider.name}
                     onClick={() =>
                       signIn(provider.id, {
-                        callbackUrl: '/dashboard',
+                        callbackUrl: '/',
+                        ip: userInfo.ip,
+                        userAgent: userInfo.userAgent,
                       })
                     }
                     variant="secondary"
@@ -259,6 +261,11 @@ export default function SignIn({ providers }) {
 export async function getServerSideProps(context) {
   const { session, providers } = await Auth(context);
 
+  const userInfo = {
+    ip: context.req.headers['x-forwarded-for'] || 'Unknown',
+    userAgent: context.req.headers['user-agent'],
+  };
+
   if (session) {
     return {
       redirect: {
@@ -271,6 +278,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       providers,
+      userInfo,
     },
   };
 }

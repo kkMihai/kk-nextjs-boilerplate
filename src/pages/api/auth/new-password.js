@@ -1,19 +1,19 @@
-import {getPasswordResetTokenByToken} from "@/data/passwordResetToken";
-import {getUserByEmail} from "@/data/user";
-import {NewPasswordSchema, z} from "@/schemas";
-import bcryptjs from "bcryptjs";
-import ua from "ua-parser-js";
-import prisma from "@/lib/db/prisma";
-import Notification from "@/lib/notification.mjs";
+import bcryptjs from 'bcryptjs';
+import ua from 'ua-parser-js';
+import { getPasswordResetTokenByToken } from '@/data/passwordResetToken';
+import { getUserByEmail } from '@/data/user';
+import { NewPasswordSchema, z } from '@/schemas';
+import prisma from '@/lib/db/prisma';
+import Notification from '@/lib/notification.mjs';
 
 export default async function handler(req, res) {
   const { token } = req.body;
   const { password } = NewPasswordSchema.parse(req.body);
 
-  if (req.method !== "POST") {
+  if (req.method !== 'POST') {
     return res.status(405).json({
-      message: "Method not allowed",
-      type: "error",
+      message: 'Method not allowed',
+      type: 'error',
     });
   }
 
@@ -22,8 +22,8 @@ export default async function handler(req, res) {
 
     if (!existingToken) {
       return res.status(400).json({
-        message: "Token not found",
-        type: "error",
+        message: 'Token not found',
+        type: 'error',
       });
     }
 
@@ -31,8 +31,8 @@ export default async function handler(req, res) {
 
     if (hasExpired) {
       return res.status(400).json({
-        message: "Token has expired",
-        type: "error",
+        message: 'Token has expired',
+        type: 'error',
       });
     }
 
@@ -40,8 +40,8 @@ export default async function handler(req, res) {
 
     if (!existingUser) {
       return res.status(400).json({
-        message: "Email does not exist",
-        type: "error",
+        message: 'Email does not exist',
+        type: 'error',
       });
     }
 
@@ -58,8 +58,8 @@ export default async function handler(req, res) {
 
     if (!updatedUser) {
       return res.status(400).json({
-        message: "Failed to reset password",
-        type: "error",
+        message: 'Failed to reset password',
+        type: 'error',
       });
     }
 
@@ -69,36 +69,36 @@ export default async function handler(req, res) {
       },
     });
 
-    await prisma.userSession.deleteMany({
+    await prisma.session.deleteMany({
       where: {
         userId: existingUser.id,
       },
     });
 
-    const userAgent = req.headers["user-agent"] || "Unknown";
-    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
     const device = `${ua(userAgent).browser.name} on ${ua(userAgent).os.name} | ${ip}`;
 
     const { sendNotification } = new Notification();
     await sendNotification({
-      notificationType: "passwordChange",
+      notificationType: 'passwordChange',
       userId: updatedUser.id,
       device,
     });
 
     return res.status(200).json({
-      message: "Your password has been updated",
-      type: "success",
+      message: 'Your password has been updated',
+      type: 'success',
     });
   } catch (error) {
-    console.error("[API /auth/new-password] Error:", error);
+    console.error('[API /auth/new-password] Error:', error);
     return res.status(500).json({
       message:
         error instanceof z.ZodError
           ? error.errors[0].message
-          : "Internal server error",
-      type: "error",
+          : 'Internal server error',
+      type: 'error',
     });
   }
 }

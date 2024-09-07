@@ -121,7 +121,7 @@ export default function Header({ session }) {
                   alt={session.user.username}
                 />
                 <AvatarFallback>
-                  {session.user.username.charAt(0).toUpperCase()}
+                  {session?.user?.username?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </MotionAvatar>
             </DropdownMenuTrigger>

@@ -10,8 +10,9 @@
         "@/lib/*": ["./src/lib/*"],
         "@/hooks/*": ["./src/hooks/*"],
         "@/schemas/*": ["./src/schemas/*"],
-        "@/Auth/options": ["./src/pages/api/auth/[...nextauth].js"],
+        "@/Auth/options.js": ["./src/pages/api/auth/[...nextauth].js"],
         "@/Auth.js": ["./src/lib/auth/auth.js"],
+        "@/Auth/constants.js": ["./src/lib/auth/constants.js"],
         "@/env": ["./src/env.mjs"],
         "@/keys/*": ["./.keys/*"]
     }

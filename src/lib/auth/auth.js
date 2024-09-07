@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 // eslint-disable-next-line import/extensions
-import { authOptions } from '@/Auth/options';
+import { authOptions } from '@/Auth/options.js';
 
 /**
  * @private
@@ -18,7 +18,7 @@ const createRedirectResponse = (destination) => ({
  */
 const Auth = async (context) => {
   const { req, res } = context;
-  const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions());
   const user = session?.user;
   const isAuthenticated = !!session;
   const isAdmin = user?.role === 'ADMIN';
@@ -52,18 +52,18 @@ const Auth = async (context) => {
 
   const requireAuth = createAuthCheck(
     () => isAuthenticated,
-    authOptions.pages.signIn,
-    authOptions.pages.signIn
+    authOptions().pages.signIn,
+    authOptions().pages.signIn
   );
 
   const requireAdmin = createAuthCheck(
     () => isAuthenticated && isAdmin,
-    authOptions.pages.signIn,
-    authOptions.pages.notAdmin
+    authOptions().pages.signIn,
+    authOptions().pages.notAdmin
   );
 
-  const providers = authOptions.providers
-    .map((provider) => ({
+  const providers = authOptions()
+    .providers.map((provider) => ({
       id: provider.id,
       name: provider.name,
     }))

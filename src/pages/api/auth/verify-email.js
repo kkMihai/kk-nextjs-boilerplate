@@ -1,27 +1,27 @@
-import {verifyEmailVerificationToken} from "@/lib/tokens";
-import prisma from "@/lib/db/prisma";
-import {getEmailVerificationTokenByToken} from "@/data/emailVerificationToken";
-import {z} from "@/schemas";
-import ua from "ua-parser-js";
-import Notification from "@/lib/notification.mjs";
+import ua from 'ua-parser-js';
+import { verifyEmailVerificationToken } from '@/lib/tokens';
+import prisma from '@/lib/db/prisma';
+import { getEmailVerificationTokenByToken } from '@/data/emailVerificationToken';
+import { z } from '@/schemas';
+import Notification from '@/lib/notification.mjs';
 
 export default async function handler(req, res) {
   const { token, captchaToken } = req.body;
 
-  if (req.method !== "POST")
-    return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== 'POST')
+    return res.status(405).json({ message: 'Method not allowed' });
 
   if (!token) {
     return res.status(400).json({
-      message: "No token provided",
-      type: "error",
+      message: 'No token provided',
+      type: 'error',
     });
   }
 
   if (!captchaToken) {
     return res.status(400).json({
-      message: "No captcha token provided",
-      type: "error",
+      message: 'No captcha token provided',
+      type: 'error',
     });
   }
 
@@ -29,20 +29,20 @@ export default async function handler(req, res) {
     const verifyCaptchaResponse = await fetch(
       `${process.env.NEXTAUTH_URL}/api/verify-captcha`,
       {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({ token: captchaToken }),
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      },
+      }
     );
 
     const verifyCaptchaData = await verifyCaptchaResponse.json();
 
-    if (verifyCaptchaData.type === "error") {
+    if (verifyCaptchaData.type === 'error') {
       return res.status(400).json({
-        message: "Captcha verification failed",
-        type: "error",
+        message: 'Captcha verification failed',
+        type: 'error',
       });
     }
 
@@ -50,8 +50,8 @@ export default async function handler(req, res) {
 
     if (!existingToken) {
       return res.status(400).json({
-        message: "Token not found",
-        type: "error",
+        message: 'Token not found',
+        type: 'error',
       });
     }
 
@@ -59,8 +59,8 @@ export default async function handler(req, res) {
 
     if (new Date(existingToken.expires) < new Date()) {
       return res.status(400).json({
-        message: "Token expired",
-        type: "error",
+        message: 'Token expired',
+        type: 'error',
       });
     }
 
@@ -72,8 +72,8 @@ export default async function handler(req, res) {
 
     if (!user) {
       return res.status(400).json({
-        message: "User not found",
-        type: "error",
+        message: 'User not found',
+        type: 'error',
       });
     }
 
@@ -82,13 +82,13 @@ export default async function handler(req, res) {
     if (isEmailChange) {
       const { sendNotification } = new Notification();
 
-      const userAgent = req.headers["user-agent"] || "Unknown";
-      const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+      const userAgent = req.headers['user-agent'] || 'Unknown';
+      const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
       const device = `${ua(userAgent).browser.name} on ${ua(userAgent).os.name} | ${ip}`;
 
       await sendNotification({
-        notificationType: "emailChange",
+        notificationType: 'emailChange',
         userId: existingToken.userId,
         device,
         newEmail: existingToken.email,
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
         },
       });
 
-      await prisma.userSession.deleteMany({
+      await prisma.session.deleteMany({
         where: {
           userId: existingToken.userId,
         },
@@ -128,17 +128,17 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       message: isEmailChange
-        ? "Your email has been changed and verified"
-        : "Your email has been verified",
-      type: "success",
+        ? 'Your email has been changed and verified'
+        : 'Your email has been verified',
+      type: 'success',
     });
   } catch (error) {
     return res.status(500).json({
       message:
         error instanceof z.ZodError
           ? error.errors[0].message
-          : "Internal server error",
-      type: "error",
+          : 'Internal server error',
+      type: 'error',
     });
   }
 }
