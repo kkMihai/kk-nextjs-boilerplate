@@ -5,7 +5,7 @@ import { env } from '@/env.mjs';
 import config from '@/config.mjs';
 
 function Footer() {
-  const { links } = config.footer;
+  const { links } = config.landingpage.footer;
 
   return (
     <footer className="mt-[16vh] w-full border-t">
@@ -68,11 +68,10 @@ function Footer() {
         </div>
         <div className="flex flex-row items-center justify-center gap-2 border-t py-4">
           <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
-            Copyright © {new Date().getFullYear()}{' '}
             <Link href="/" className="cursor-pointer underline">
               {env.NEXT_PUBLIC_APP_NAME}
             </Link>
-            . All Rights Reserved.
+            . Free and Open Source.
           </span>
         </div>
       </div>

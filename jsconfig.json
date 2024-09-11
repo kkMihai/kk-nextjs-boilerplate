@@ -14,7 +14,8 @@
         "@/Auth.js": ["./src/lib/auth/auth.js"],
         "@/Auth/constants.js": ["./src/lib/auth/constants.js"],
         "@/env": ["./src/env.mjs"],
-        "@/keys/*": ["./.keys/*"]
+        "@/keys/*": ["./.keys/*"],
+        "@/public/*": ["./public/*"]
     }
   },
   "include": [

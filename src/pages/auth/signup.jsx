@@ -263,7 +263,7 @@ export default function SignUp({ providers }) {
 }
 
 export async function getServerSideProps(context) {
-  const { session, providers } = await Auth(context);
+  const { session, providers } = await new Auth(context).init();
 
   if (session) {
     return {

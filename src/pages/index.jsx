@@ -11,7 +11,7 @@ export default function Home({ session }) {
 }
 
 export async function getServerSideProps(context) {
-  const { session } = await Auth(context);
+  const { session } = await new Auth(context).init();
 
   return {
     props: {

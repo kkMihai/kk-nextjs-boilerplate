@@ -39,14 +39,6 @@ const nextConfig = {
             value: 'max-age=31536000; includeSubDomains',
           },
           {
-            // Set the Feature-Policy header
-            // This disables access to various device features like camera, microphone, and geolocation
-            // This helps improve the security and privacy of the application
-            key: 'Feature-Policy',
-            value:
-              "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'",
-          },
-          {
             // Set the Permissions-Policy header
             // This is similar to the Feature-Policy header, but uses a different syntax
             // It also disables access to various device features

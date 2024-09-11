@@ -48,28 +48,30 @@ const config = {
     },
   },
   // Configuration for the header links
-  header: {
-    links: [
-      // {
-      //   title: 'Home',
-      //   url: '/', // URL for the GitHub link in the header
-      // },
-    ],
-  },
-  // Configuration for the footer links
-  footer: {
-    links: [
-      {
-        category: 'Nav', // Category name for the footer section
-        links: [
-          {
-            title: 'Hero',
-            url: '#hero', // URL for the "Hero" section in the footer navigation
-          },
-        ],
-      },
-    ],
-  },
+  landingpage: {
+    header: {
+      links: [
+        // {
+        //   title: 'Home',
+        //   url: '/', // URL for the GitHub link in the header
+        // },
+      ],
+    },
+    // Configuration for the footer links
+    footer: {
+      links: [
+        {
+          category: 'Nav', // Category name for the footer section
+          links: [
+            {
+              title: 'Hero',
+              url: '#hero', // URL for the "Hero" section in the footer navigation
+            },
+          ],
+        },
+      ],
+    },
+  }
 };
 
 export default config;

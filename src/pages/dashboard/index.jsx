@@ -1,9 +1,9 @@
 import DashWrapper from '@/components/dashboard/DashWrapper.jsx';
 import Auth from '@/Auth.js';
 
-export default function Dashboard() {
+export default function Dashboard({ session }) {
   return (
-    <DashWrapper>
+    <DashWrapper session={session}>
       <div className="rounded-lg border bg-card p-4">Card 1</div>
       <div className="rounded-lg border bg-card p-4">Card 2</div>
       <div className="rounded-lg border bg-card p-4">Card 3</div>
@@ -13,11 +13,11 @@ export default function Dashboard() {
 }
 
 export async function getServerSideProps(context) {
-  const { session } = await Auth(context);
+  const auth = await new Auth(context).init();
 
-  return {
+  return auth.requireAuth(async (ctx, { session }) => ({
     props: {
       session,
     },
-  };
+  }))(context);
 }

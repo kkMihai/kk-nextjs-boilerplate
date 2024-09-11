@@ -1,3 +1,9 @@
+/**
+ * @file [...nextauth].js
+ * @description This file configures NextAuth for authentication in a Next.js application.
+ * Comes with pre-configured providers for GitHub and credentials (email and password) with 2FA support.
+ */
+
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
@@ -13,6 +19,12 @@ import { SignInSchema } from '@/schemas/auth.js';
 
 const { linkAccount } = PrismaAdapter(prisma);
 
+/**
+ * Creates or updates a session for a user.
+ * @param {string} userId - The ID of the user.
+ * @param {Object} requestInfo - The request information containing IP and user agent.
+ * @returns {Promise<Object>} The created or updated session.
+ */
 const createOrUpdateSession = async (userId, requestInfo) => {
   const { ip, userAgent } = requestInfo;
   const GetGeoIP = geoip.lookup(ip);
@@ -35,6 +47,11 @@ const createOrUpdateSession = async (userId, requestInfo) => {
   });
 };
 
+/**
+ * Configuration options for NextAuth.
+ * @param {Object} req - The request object.
+ * @returns {Object} The NextAuth configuration options.
+ */
 export const authOptions = (req) => ({
   providers: [
     GitHubProvider({
@@ -42,6 +59,12 @@ export const authOptions = (req) => ({
       clientSecret: env.GITHUB_CLIENT_SECRET,
     }),
     Credentials({
+      /**
+       * Authorizes a user with credentials.
+       * @param {Object} credentials - The user's credentials.
+       * @returns {Promise<Object>} The authenticated user.
+       * @throws Will throw an error if authentication fails.
+       */
       async authorize(credentials) {
         const { email, password, twoFactorToken } =
           await SignInSchema.parseAsync(credentials).catch((error) => {
@@ -101,10 +124,15 @@ export const authOptions = (req) => ({
     }),
   ],
   callbacks: {
+    /**
+     * Callback triggered when a user signs in.
+     * @param {Object} param0 - The sign-in parameters.
+     * @returns {Promise<boolean>} Whether the sign-in was successful.
+     */
     async signIn({ user, account, profile }) {
       try {
         const RequestUserInfo = {
-          ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+          ip: req.headers['x-forwarded-for'] || req.headers['x-real-ip'],
           userAgent: req.headers['user-agent'],
         };
 
@@ -177,7 +205,11 @@ export const authOptions = (req) => ({
         return false;
       }
     },
-    // eslint-disable-next-line no-unused-vars
+    /**
+     * Callback triggered when a JWT is created or updated.
+     * @param {Object} param0 - The JWT parameters.
+     * @returns {Object} The updated token.
+     */
     async jwt({ token, user, account }) {
       if (user) {
         return {
@@ -190,6 +222,12 @@ export const authOptions = (req) => ({
       }
       return token;
     },
+    /**
+     * Callback triggered when a session is created or updated.
+     * @param {Object} param0 - The session parameters.
+     * @returns {Promise<Object>} The updated session.
+     * @throws Will throw an error if the user or session is not found.
+     */
     async session({ session, token }) {
       const user = await getUser(token.id);
 
@@ -233,6 +271,10 @@ export const authOptions = (req) => ({
     },
   },
   events: {
+    /**
+     * Event triggered when a user signs out.
+     * @param {Object} param0 - The sign-out parameters.
+     */
     async signOut({ token }) {
       try {
         const { ip, userAgent, id } = token;
@@ -264,6 +306,12 @@ export const authOptions = (req) => ({
   debug: env.NODE_ENV === 'development',
 });
 
+/**
+ * The main authentication handler for NextAuth.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>}
+ */
 export default async function auth(req, res) {
   // eslint-disable-next-line no-return-await
   return await NextAuth(req, res, authOptions(req, res));

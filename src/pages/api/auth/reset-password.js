@@ -1,6 +1,6 @@
 import { getUser } from '@/data/user.js';
-import { generatePasswordResetToken } from '@/lib/tokens';
-import { sendPasswordResetEmail } from '@/lib/email.mjs';
+import { generatePasswordResetToken } from '@/lib/auth/tokens.js';
+import { sendPasswordResetEmail } from '@/lib/email/mjs';
 import { getPasswordResetToken } from '@/data/passwordResetToken.js';
 import { z } from '@/schemas/auth.js';
 import { validateTOTP } from '@/lib/auth/2fa.js';

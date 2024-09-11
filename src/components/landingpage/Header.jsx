@@ -25,7 +25,7 @@ import { env } from '@/env.mjs';
 import config from '@/config.mjs';
 
 export default function Header({ session }) {
-  const { links } = config.header;
+  const { links } = config.landingpage.header;
 
   const router = useRouter();
 

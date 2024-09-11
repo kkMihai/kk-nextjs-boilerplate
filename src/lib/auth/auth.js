@@ -1,83 +1,138 @@
 import { getServerSession } from 'next-auth/next';
-// eslint-disable-next-line import/extensions
 import { authOptions } from '@/Auth/options.js';
 
 /**
- * @private
- * @param destination
- * @returns {{redirect: {permanent: boolean, destination}}}
+ * Auth class to handle authentication and authorization.
  */
-const createRedirectResponse = (destination) => ({
-  redirect: { destination, permanent: false },
-});
+class Auth {
+  /**
+   * Constructor to initialize the Auth class.
+   * @param {Object} context - The context object containing req and res.
+   */
+  constructor(context) {
+    this.context = context;
+    this.session = null;
+    this.user = null;
+    this.providers = authOptions()
+      .providers.map(({ id, name }) => ({ id, name }))
+      .filter(({ id }) => id !== 'credentials');
+  }
 
-/**
- * @param {import('next').GetServerSidePropsContext} context - The context object.
- * @returns {Promise<import("next-auth/next").getServerSession || {props: {}} || {redirect: {destination: string, permanent: boolean}}>} - GetServerSession response.
- * @throws {Error} - The error thrown.
- */
-const Auth = async (context) => {
-  const { req, res } = context;
-  const session = await getServerSession(req, res, authOptions());
-  const user = session?.user;
-  const isAuthenticated = !!session;
-  const isAdmin = user?.role === 'ADMIN';
+  /**
+   * Initializes the Auth class by fetching the session and user data.
+   * @returns {Promise<Auth>} - The initialized Auth instance.
+   */
+  async init() {
+    const { req, res } = this.context;
+    this.session = await getServerSession(req, res, authOptions());
+    this.user = this.session?.user || null;
+    return this;
+  }
 
-  const isApiRoute = req.url?.startsWith('/api/') || !!res.socket;
+  /**
+   * Checks if the user is authenticated.
+   * @returns {boolean} - True if the user is authenticated, false otherwise.
+   */
+  get isAuthenticated() {
+    return !!this.session;
+  }
 
-  const createAuthCheck =
-    (checkFn, unauthorizedRedirect, forbiddenRedirect) =>
-    (handler) =>
-    async (ctx) => {
-      if (!checkFn()) {
-        if (isApiRoute) {
-          const statusCode = !isAuthenticated ? 401 : 403;
-          const error = !isAuthenticated ? 'Unauthorized' : 'Forbidden';
-          ctx.res.status(statusCode).json({ error });
-          return { props: {} };
+  /**
+   * Checks if the user has an admin role.
+   * @returns {boolean} - True if the user is an admin, false otherwise.
+   */
+  get isAdmin() {
+    return this.user?.role === 'ADMIN';
+  }
+
+  /**
+   * Checks if the current route is an API route.
+   * @returns {boolean} - True if the current route is an API route, false otherwise.
+   */
+  get isApiRoute() {
+    const { req } = this.context;
+    return (
+      req.url?.startsWith('/api/') ||
+      (req.method && req.method.toLowerCase() === 'post')
+    );
+  }
+
+  /**
+   * Creates a redirect response object.
+   * @param {string} destination - The destination URL for the redirect.
+   * @returns {Object} - The redirect response object.
+   */
+  static createRedirectResponse(destination) {
+    return { redirect: { destination, permanent: false } };
+  }
+
+  /**
+   * Creates an authentication check function.
+   * @param {Function} checkFn - The function to check authentication.
+   * @param {string} unauthorizedRedirect - The URL to redirect if unauthorized.
+   * @param {string} [forbiddenRedirect] - The URL to redirect if forbidden.
+   * @returns {Function} - The authentication check function.
+   */
+  createAuthCheck(checkFn, unauthorizedRedirect, forbiddenRedirect) {
+    return (handler) => async (context) => {
+      const { res } = context;
+      try {
+        if (!checkFn()) {
+          if (this.isApiRoute) {
+            const statusCode = !this.isAuthenticated ? 401 : 403;
+            const error = !this.isAuthenticated ? 'Unauthorized' : 'Forbidden';
+            res.status(statusCode).json({ error });
+            return { props: {} };
+          }
+          return Auth.createRedirectResponse(
+            !this.isAuthenticated ? unauthorizedRedirect : forbiddenRedirect
+          );
         }
-        return createRedirectResponse(
-          !isAuthenticated ? unauthorizedRedirect : forbiddenRedirect
-        );
+
+        const authContext = {
+          session: this.session,
+          user: this.user,
+          isAuthenticated: this.isAuthenticated,
+          isAdmin: this.isAdmin,
+        };
+
+        const result = await handler(context, authContext);
+
+        if (this.isApiRoute && !res.writableEnded) {
+          res.end();
+        }
+
+        return result;
+      } catch (error) {
+        console.error('Error in createAuthCheck:', error);
+        // Handle the error, e.g., return a default page or redirect
+        return { props: {} };
       }
-
-      const result = await handler(ctx, { session, user, isAdmin });
-
-      if (isApiRoute && !ctx.res.writableEnded) {
-        ctx.res.end();
-      }
-
-      return result;
     };
+  }
 
-  const requireAuth = createAuthCheck(
-    () => isAuthenticated,
-    authOptions().pages.signIn,
-    authOptions().pages.signIn
-  );
+  /**
+   * Getter for requireAuth, which creates an authentication check for authenticated users.
+   * @returns {Function} - The authentication check function.
+   */
+  get requireAuth() {
+    return this.createAuthCheck(
+      () => this.isAuthenticated,
+      authOptions().pages.signIn
+    );
+  }
 
-  const requireAdmin = createAuthCheck(
-    () => isAuthenticated && isAdmin,
-    authOptions().pages.signIn,
-    authOptions().pages.notAdmin
-  );
-
-  const providers = authOptions()
-    .providers.map((provider) => ({
-      id: provider.id,
-      name: provider.name,
-    }))
-    .filter((provider) => provider.id !== 'credentials');
-
-  return {
-    session,
-    user,
-    isAdmin,
-    isAuthenticated,
-    requireAuth,
-    requireAdmin,
-    providers,
-  };
-};
+  /**
+   * Getter for requireAdmin, which creates an authentication check for admin users.
+   * @returns {Function} - The authentication check function.
+   */
+  get requireAdmin() {
+    return this.createAuthCheck(
+      () => this.isAuthenticated && this.isAdmin,
+      authOptions().pages.signIn,
+      authOptions().pages.notAdmin
+    );
+  }
+}
 
 export default Auth;

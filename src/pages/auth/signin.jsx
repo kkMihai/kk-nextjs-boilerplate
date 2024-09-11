@@ -259,7 +259,7 @@ export default function SignIn({ providers, userInfo }) {
 }
 
 export async function getServerSideProps(context) {
-  const { session, providers } = await Auth(context);
+  const { session, providers } = await new Auth(context).init();
 
   const userInfo = {
     ip: context.req.headers['x-forwarded-for'] || 'Unknown',
