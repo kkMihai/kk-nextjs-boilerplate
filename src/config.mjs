@@ -1,5 +1,7 @@
 import { env } from '@/env.mjs';
 
+// for icons use https://icon-sets.iconify.design/
+
 // Main configuration object
 const config = {
   // SEO configuration for the application
