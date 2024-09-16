@@ -16,7 +16,7 @@ const techStack = [
 export default function Hero() {
   const router = useRouter();
 
-  const MotionButton = motion(Button);
+  const MotionButton = motion.create(Button);
 
   return (
     <>

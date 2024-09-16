@@ -73,6 +73,10 @@ Yep another NextJS Boilerplate, Since my adventure to find the best boilerplate 
 
 - **Environment Variables**: Configure your environment settings in `.env.local` or also in `/src/env.mjs` depending if you wanna add env variables.
 
+## 📷 Screenshots
+
+![img.png](public/assets/images/showcase.png)
+
 ## 💡 Contributing
 
 I welcome contributions! Please read the [contributing guide](CONTRIBUTING.md) for more details on how to get involved.

@@ -31,9 +31,9 @@ export default function Header({ session }) {
 
   const { setTheme } = useTheme();
 
-  const MotionLink = motion(Link);
-  const MotionAvatar = motion(Avatar);
-  const MotionButton = motion(Button);
+  const MotionLink = motion.create(Link);
+  const MotionAvatar = motion.create(Avatar);
+  const MotionButton = motion.create(Button);
 
   return (
     <div className="container relative inset-x-0 top-0 z-50 mx-auto mt-5 flex h-16 items-center justify-between rounded-2xl px-4">

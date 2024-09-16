@@ -208,7 +208,7 @@ function SidebarContent({ sidebarExpanded, openItems, toggleItem }) {
           />
           {sidebarExpanded && (
             <span className="self-center whitespace-nowrap text-2xl font-black">
-              My App
+              Brand
             </span>
           )}
         </Link>
@@ -264,12 +264,17 @@ function SidebarContent({ sidebarExpanded, openItems, toggleItem }) {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="destructive"
-                className="mt-auto"
-                size="icon"
+                variant="outline"
+                className="mt-auto gap-2 text-red-500"
+                size={!sidebarExpanded ? 'icon' : ''}
                 onClick={() => signOut()}
               >
                 <Icon icon="tabler:logout" className="size-6" />
+                <span
+                  className={cn('inline-block', !sidebarExpanded && 'sr-only')}
+                >
+                  Sign Out
+                </span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={10}>
@@ -311,11 +316,12 @@ export default function DashWrapper({ session, children }) {
             className={cn('h-8 w-8', !sidebarExpanded && 'mx-auto')}
           >
             <Icon
-              icon="tabler:chevron-right"
-              className={`size-8 ${
+              icon="tabler:chevron-left"
+              className={`size-5 ${
                 !sidebarExpanded ? 'rotate-180' : ''
               } transition-transform duration-300`}
             />
+
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </div>

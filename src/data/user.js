@@ -1,6 +1,14 @@
 import { z } from 'zod';
 import prisma from '@/lib/db/prisma.mjs';
 
+const UserQuerySchema = z.union([
+  z.string().email(),
+  z.string().cuid(),
+  z
+    .string()
+    .regex(/^[0-9]+$/, 'Must be a numeric string for provider account ID'),
+]);
+
 /**
  * @name getUser
  * @description Retrieve a user by their email address, ID, or provider account ID
@@ -9,9 +17,7 @@ import prisma from '@/lib/db/prisma.mjs';
  */
 export async function getUser(query) {
   try {
-    const parsed = z
-      .union([z.string().email(), z.string().uuid(), z.string()])
-      .parse(query);
+    const parsed = UserQuerySchema.parse(query);
 
     const results = await prisma.user.findFirst({
       where: {
@@ -30,16 +36,19 @@ export async function getUser(query) {
     });
 
     // Convert data types to string for JSON serialization
-    results.emailVerified = String(results.emailVerified);
-    results.createdAt = String(results.createdAt);
+    if (results) {
+      results.emailVerified = results.emailVerified?.toISOString() || null;
+      results.createdAt = results.createdAt.toISOString();
+    }
 
     return results;
   } catch (error) {
-    console.error('Error getting user by email:', error);
-    throw new Error(
-      error instanceof z.ZodError
-        ? error.errors[0].message
-        : 'Something went wrong'
-    );
+    console.error('Error getting user:', error);
+    if (error instanceof z.ZodError) {
+      throw new Error(
+        `Invalid input: ${error.errors.map((e) => e.message).join(', ')}`
+      );
+    }
+    throw new Error('An unexpected error occurred while retrieving the user');
   }
 }

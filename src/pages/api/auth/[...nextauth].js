@@ -155,7 +155,7 @@ export const authOptions = (req) => ({
             await prisma.user.update({
               where: { id: existingUser.id },
               data: {
-                username: profile.name,
+                username: profile.name || profile.username,
                 avatar: profile.image ?? null,
                 emailVerified: new Date(),
               },
@@ -164,7 +164,7 @@ export const authOptions = (req) => ({
             existingUser = await prisma.user.create({
               data: {
                 email: profile.email,
-                username: profile.name,
+                username: profile.name || profile.username,
                 avatar: profile.image ?? null,
                 emailVerified: new Date(),
               },
