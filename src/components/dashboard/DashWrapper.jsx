@@ -33,6 +33,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip.jsx';
 import { LinkButton } from '@/components/ui/linkButton.jsx';
+import config from '@/config.mjs';
+
+const navItems = config.dashboard.sidebar.links;
 
 const useSidebarState = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -73,41 +76,6 @@ const useSidebarState = () => {
     toggleSidebarMobile,
   };
 };
-
-// Navigation items configuration
-const navItems = [
-  {
-    category: 'Dashboard',
-    links: [
-      { name: 'Overview', href: '/dashboard', icon: 'ic:round-dashboard' },
-    ],
-  },
-  {
-    category: 'User Management',
-    links: [
-      { name: 'All Users', href: '/users', icon: 'ic:round-people' },
-      {
-        name: 'Roles',
-        href: '/roles',
-        icon: 'eos-icons:role-binding',
-        subLinks: [
-          { name: 'Admin', href: '/roles/admin', icon: 'ic:round-security' },
-        ],
-      },
-    ],
-  },
-  {
-    category: 'Settings',
-    links: [
-      { name: 'General', href: '/settings/general', icon: 'ic:round-settings' },
-      {
-        name: 'Security',
-        href: '/settings/security',
-        icon: 'ic:round-security',
-      },
-    ],
-  },
-];
 
 // Component for rendering a single navigation link
 function NavLink({ link, sidebarExpanded, openItems, toggleItem }) {

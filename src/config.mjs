@@ -71,6 +71,43 @@ const config = {
         },
       ],
     },
+  },
+  dashboard: {
+    sidebar: {
+      links: [
+        {
+          category: 'Dashboard',
+          links: [
+            { name: 'Overview', href: '/dashboard', icon: 'ic:round-dashboard' },
+          ],
+        },
+        {
+          category: 'User Management',
+          links: [
+            { name: 'All Users', href: '/users', icon: 'ic:round-people' },
+            {
+              name: 'Roles',
+              href: '/roles',
+              icon: 'eos-icons:role-binding',
+              subLinks: [
+                { name: 'Admin', href: '/roles/admin', icon: 'ic:round-security' },
+              ],
+            },
+          ],
+        },
+        {
+          category: 'Settings',
+          links: [
+            { name: 'General', href: '/settings/general', icon: 'ic:round-settings' },
+            {
+              name: 'Security',
+              href: '/settings/security',
+              icon: 'ic:round-security',
+            },
+          ],
+        },
+      ]
+    },
   }
 };
 
