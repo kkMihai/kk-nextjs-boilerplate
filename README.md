@@ -1,5 +1,7 @@
 # 🚀 KK NextJS Boilerplate
 
+## ⚠️ THIS BOILERPLATE IS STILL IN DEVELOPMENT, IS NOT RECOMMENDED TO USE IN PRODUCTION YET
+
 Yep another NextJS Boilerplate, Since my adventure to find the best boilerplate for my projects has failed, I decided to create my own. This boilerplate is designed to help me (or your idk) kickstart your Next.js projects with a modern development stack.
 ## 📦 Features
 
